@@ -70,7 +70,10 @@ enum nss_status _nss_sqlite_getpwnam_r(const char* name, struct passwd *pwbuf,
     int res;
     uid_t uid;
     gid_t gid;
-    const char* sql = "SELECT uid, gid, shell, homedir FROM passwd WHERE username = ?";
+    //const char* sql = "SELECT uid, gid, shell, homedir FROM passwd WHERE username = ?";
+    const char* sql = "SELECT p.uid, gid, shell, homedir FROM passwd p  \
+                        JOIN role_account_map r on p.uid = r.uid        \
+                         WHERE (SELECT uid FROM passwd WHERE username = ?)";  
     const char* shell;
     const char* homedir;
 
@@ -119,7 +122,10 @@ enum nss_status _nss_sqlite_getpwuid_r(uid_t uid, struct passwd *pwbuf,
     const unsigned char *name;
     const unsigned char *shell;
     const unsigned char *homedir;
-    const char *sql = "SELECT username, gid, shell, homedir FROM passwd WHERE uid = ?";
+    //const char *sql = "SELECT username, gid, shell, homedir FROM passwd WHERE uid = ?";
+    const char *sql = "SELECT username, gid, shell, homedir FROM passwd p \
+                         JOIN role_account_map r ON p.uid = r.uid        \
+                         WHERE r.map_uid = ?"; 
 
     NSS_DEBUG("getpwuid_r: looking for user #%d\n", uid);
 
